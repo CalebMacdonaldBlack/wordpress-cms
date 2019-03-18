@@ -2,7 +2,7 @@ resource "aws_ecs_cluster" "cluster" {
   name = "${var.name}"
 }
 
-resource "aws_cloudwatch_log_group" "joomla" {
+resource "aws_cloudwatch_log_group" "logs" {
   name = "${var.name}-logs"
 }
 
@@ -140,8 +140,8 @@ resource "aws_ecs_task_definition" "service" {
   family                   = "${var.name}"
   requires_compatibilities = ["EC2"]
   network_mode             = "awsvpc"
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = "768"
+  memory                   = "768"
   execution_role_arn       = "${aws_iam_role.ecs_execution_role.arn}"
   task_role_arn            = "${aws_iam_role.task.arn}"
 
@@ -160,7 +160,7 @@ resource "aws_ecs_task_definition" "service" {
         "containerPath": "/var/www/html"
       }
     ],
-    "image": "joomla",
+    "image": "wordpress:latest",
     "portMappings": [
       {
         "containerPort": ${var.port},
@@ -169,27 +169,31 @@ resource "aws_ecs_task_definition" "service" {
     ],
     "environment": [
        {
-          "name": "JOOMLA_DB_HOST",
-          "value": "${aws_db_instance.db.endpoint}"
+          "name": "WORDPRESS_DB_NAME",
+          "value": "${aws_db_instance.db.name}"
         },
         {
-          "name": "JOOMLA_DB_PASSWORD",
+          "name": "WORDPRESS_DB_PASSWORD",
           "value": "${aws_db_instance.db.password}"
         },
         {
-          "name": "JOOMLA_DB_NAME",
-          "value": "${aws_db_instance.db.name}"
+          "name": "WORDPRESS_DB_USER",
+          "value": "${aws_db_instance.db.username}"
+        },
+        {
+          "name": "WORDPRESS_DB_HOST",
+          "value": "${aws_db_instance.db.endpoint}"
         }
     ],
-    "cpu": 256,
-    "memory": 512,
+    "cpu": 768,
+    "memory": 768,
     "networkMode": "awsvpc",
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
-        "awslogs-group": "${aws_cloudwatch_log_group.joomla.name}",
+        "awslogs-group": "${aws_cloudwatch_log_group.logs.name}",
         "awslogs-region": "${var.region}",
-        "awslogs-stream-prefix": "${aws_cloudwatch_log_group.joomla.name}"
+        "awslogs-stream-prefix": "${aws_cloudwatch_log_group.logs.name}"
       }
     }
   }

@@ -24,7 +24,7 @@ resource "aws_db_instance" "db" {
   instance_class         = "db.t2.micro"
   storage_type           = "gp2"
   engine                 = "mysql"
-  engine_version         = "5.6"
+  engine_version         = "5.7"
   allocated_storage      = 10
   name                   = "${replace(var.name,"-","")}db"
   apply_immediately      = true

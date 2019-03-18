@@ -3,15 +3,11 @@ variable "region" {
 }
 
 variable "name" {
-  default = "coderock-joomla"
+  default = "coderock-wp"
 }
 
 variable "port" {
   default = 80
-}
-
-provider "aws" {
-  region = "${var.region}"
 }
 
 variable "db-password" {
@@ -22,10 +18,18 @@ variable "instance_type" {
   default = "t2.micro"
 }
 
+variable "domain_name" {
+  default = "kaidenplayer.xyz"
+}
+
 output "public_key_pem" {
   value = "${tls_private_key.private_key.public_key_pem}"
 }
 
 output "private_key_pem" {
   value = "${tls_private_key.private_key.private_key_pem}"
+}
+
+provider "aws" {
+  region = "${var.region}"
 }

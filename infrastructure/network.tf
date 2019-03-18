@@ -50,8 +50,13 @@ resource "aws_security_group" "service" {
   }
 }
 
+resource "random_string" "alb_name" {
+  length  = 6
+  special = false
+}
+
 resource "aws_alb_target_group" "alb_target_group" {
-  name        = "${var.name}-alb-target-group"
+  name_prefix = "${random_string.alb_name.result}"
   port        = "${var.port}"
   protocol    = "HTTP"
   vpc_id      = "${aws_default_subnet.subnet-b.vpc_id}"
@@ -97,12 +102,15 @@ resource "aws_alb" "alb" {
 
 resource "aws_alb_listener" "alb_listener" {
   load_balancer_arn = "${aws_alb.alb.arn}"
-  port              = "${var.port}"
-  protocol          = "HTTP"
+  port              = "443"
+  protocol          = "HTTPS"
   depends_on        = ["aws_alb_target_group.alb_target_group"]
 
   default_action {
     target_group_arn = "${aws_alb_target_group.alb_target_group.arn}"
     type             = "forward"
   }
+
+  ssl_policy      = ""
+  certificate_arn = "${aws_acm_certificate_validation.cert_validation.certificate_arn}"
 }
